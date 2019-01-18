@@ -1,25 +1,21 @@
 package com.codecool;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TimeManager {
     final int commandIndex = 0;
     final int nameIndex = 1;
-    private List<MyTimer> timerList = new ArrayList<>();
+    private Map<String, MyTimer> timerMap = new HashMap<>();
 
     public void handleChoice(String input) {
 
 
         String[] splitedInput = input.split(" ");
-        String command = "default";
-        String threadName = null;
+        String command = splitedInput[commandIndex];
+        String threadName = "";
 
         if (splitedInput.length == 2) {
-            command = splitedInput[commandIndex];
             threadName = splitedInput[nameIndex];
-        } else {
-            command = splitedInput[commandIndex];
         }
 
         switch (command.toLowerCase()) {
@@ -30,7 +26,7 @@ public class TimeManager {
                 stopTimer(threadName);
                 break;
             case "check":
-                checkTimer();
+                checkTimer(threadName);
                 break;
             default:
                 System.out.println("There is no such command");
@@ -41,39 +37,47 @@ public class TimeManager {
 
     private void startTimer(String threadName) {
 
-        for (MyTimer timer : timerList) {
-
-            if (timer.getName().equalsIgnoreCase(threadName)) {
-                timer.continueStart();
-                break;
-            }
+        if (timerMap.get(threadName) == null) {
+            MyTimer newTimer = new MyTimer(threadName);
+            newTimer.start();
+            timerMap.put(threadName, newTimer);
+        } else {
+            timerMap.get(threadName).continueStart();
         }
-
-        MyTimer newTimer = new MyTimer(threadName);
-        newTimer.start();
-        timerList.add(newTimer);
     }
 
     private void stopTimer(String threadName) {
-        for (MyTimer timer : timerList) {
 
-            if (timer.getName().equalsIgnoreCase(threadName)) {
+        if (timerMap.get(threadName) != null) {
+            timerMap.get(threadName).asleeped();
+        } else if (threadName.equals("")) {
+            for (MyTimer timer : timerMap.values()) {
                 timer.asleeped();
             }
+        } else {
+           throw new NullPointerException("There is no thread with this name");
         }
     }
 
-    private void checkTimer() {
-        for(MyTimer timer : timerList) {
-            System.out.println(timer.myTimerToString());
+    private void checkTimer(String threadName) {
+
+        if (timerMap.get(threadName) != null) {
+            System.out.println(timerMap.get(threadName).myTimerToString());
+        } else if (threadName.equals("")) {
+            for (MyTimer timer : timerMap.values()) {
+                System.out.println(timer.myTimerToString());
+            }
+        } else {
+            throw new NullPointerException("There is no thread with this name");
         }
+
     }
 
     public String getAllTimers() {
 
     StringBuilder allTimersBuilder = new StringBuilder();
 
-    for(MyTimer timer : timerList) {
+        for (MyTimer timer : timerMap.values()) {
             allTimersBuilder.append(timer.myTimerToString());
         }
         return allTimersBuilder.toString();
@@ -81,8 +85,7 @@ public class TimeManager {
 
     public void stopAllTimers() {
 
-        for(MyTimer timer : timerList) {
-            //timer.stoped();
+        for (MyTimer timer : timerMap.values()) {
             timer.interrupt();
         }
     }

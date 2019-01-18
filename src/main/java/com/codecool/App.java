@@ -9,11 +9,16 @@ public class App {
         consoleInfo();
         String command = input.nextLine();
 
-        while (!((command.toLowerCase()).equals("exit"))) {
-            timeManager.handleChoice(command);
-            consoleInfo();
-            command = input.nextLine();
-        }
+
+            while (!((command.toLowerCase()).equals("exit"))) {
+                try {
+                timeManager.handleChoice(command);
+                } catch (NullPointerException e) {
+                    System.out.println(e);
+                }
+                consoleInfo();
+                command = input.nextLine();
+            }
 
 
         String allTimers = timeManager.getAllTimers();

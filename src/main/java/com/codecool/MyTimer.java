@@ -40,7 +40,6 @@ public class MyTimer extends Thread {
     }
 
 
-
     public void run() {
 
         while(! this.interrupted()) {
